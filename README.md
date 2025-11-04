@@ -1,2 +1,1 @@
-# Desarrollo-web-proyecto-1.2
-Backend
+# Desarrollo-web-proyecto-1

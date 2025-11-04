@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juguetería Mágica - Inicio</title>
+  
+  <link rel="stylesheet" href="catalogo.css">
+  <link rel="stylesheet" href="inicio.css">
+  
+</head>
+<body>
+
+ 
+  <nav class="topnav">
+    <div class="nav-left">
+      <a href="Inicio.html" class="active">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="admin.html" id="link-admin" class="btn-admin" style="display: none;">Panel Admin</a>
+    </div>
+
+    <form class="search-form">
+      <input type="text" placeholder="Buscar juguetes..." />
+    </form>
+
+    <div class="nav-right">
+      <a href="carrito.html" class="cart-icon">🛒</a>
+      <span id="usuario-logueado" class="usuario-bienvenida"></span>
+      <a href="/logout" class="logout-btn">Cerrar Sesión</a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main style="padding-top: 80px;"> 
+    <!-- HERO -->
+    <section class="hero" style="text-align: center; padding: 80px 20px; background: #535151; color: white;">
+      <h1>¡Bienvenido a la Juguetería Mágica!</h1>
+      <p style="font-size: 1.2em; margin: 20px 0;">Donde cada juguete tiene una historia por contar.</p>
+      <a href="catalogo.html" class="btn-carrito" style="padding: 15px 25px; font-size: 1em;">Ver Todos los Juguetes</a>
+    </section>
+
+    <!-- CATEGORÍAS POPULARES -->
+    <section class="categorias-populares" style="padding: 40px 20px;">
+      <h2 style="text-align: center; margin-bottom: 30px;">Categorías Populares</h2>
+      <div class="grid-categorias" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        
+        <a href="catalogo.html?categoria=bloques" class="categoria-card">
+          <img src="https://via.placeholder.com/300x200?text=Bloques" alt="Bloques y Construcción" style="width: 100%; border-radius: 12px;">
+          <h3 style="text-align: center; margin-top: 10px;">Bloques y Construcción</h3>
+        </a>
+
+        <a href="catalogo.html?categoria=munecas" class="categoria-card">
+          <img src="https://via.placeholder.com/300x200?text=Muñecas" alt="Muñecas y Figuras" style="width: 100%; border-radius: 12px;">
+          <h3 style="text-align: center; margin-top: 10px;">Muñecas y Figuras</h3>
+        </a>
+
+        <a href="catalogo.html?categoria=mesa" class="categoria-card">
+          <img src="https://via.placeholder.com/300x200?text=Juegos+Mesa" alt="Juegos de Mesa" style="width: 100%; border-radius: 12px;">
+          <h3 style="text-align: center; margin-top: 10px;">Juegos de Mesa</h3>
+        </a>
+        
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" style="text-align: center; padding: 20px 0; background: #00A9E0; color: white; margin-top: 40px;">
+    <p>&copy; 2025 Juguetería Mágica. Todos los derechos reservados.</p>
+  </footer>
+
+  <!-- SCRIPT: Mostrar usuario logueado -->
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const response = await fetch('/usuario', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const data = await response.json();
+      const userSpan = document.getElementById('usuario-logueado');
+      const adminLink = document.getElementById('link-admin');
+
+      // Mostrar nombre y rol del usuario
+      userSpan.textContent = `👋 Bienvenido, ${data.username} (${data.role})`;
+
+      // ✅ Mostrar botón admin solo si el usuario es admin
+      if (data.role === 'admin') {
+        adminLink.style.display = 'inline-block';
+      }
+    } catch (error) {
+      console.error('Error al obtener el usuario:', error);
+      window.location.href = 'index.html';
+    }
+  });
+</script>
+
+</body>
+</html>
+

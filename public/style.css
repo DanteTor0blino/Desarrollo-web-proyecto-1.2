@@ -1,0 +1,159 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f4f4f4;
+}
+
+
+.btn-crear {
+    background: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-crear:hover {
+    background: #45a049;
+    transform: scale(1.02);
+}
+
+.wrapper {
+    max-width: 420px; 
+    width: 100%;
+    margin: 15px; 
+}
+
+.wrapper form {
+    width: 100%;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    padding: 30px 25px; /* Menos padding horizontal */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espaciado general */
+    align-items: center;
+    text-align: center;
+}
+
+.wrapper form h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+}
+
+.input-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.input-box label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+.input-box input {
+    width: 100%;
+    height: 50px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0 15px;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.input-box input::placeholder {
+    color: #888;
+}
+
+.input-box input:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+    background: #fff;
+}
+
+/* Botón principal de registro */
+.btn-registro {
+    width: 100%;
+    background: #007BFF;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 19px;
+    font-weight: 700;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.btn-registro:hover {
+    background: #0056b3;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Accesibilidad con teclado */
+.btn-registro:focus-visible {
+    outline: 3px solid rgba(0, 123, 255, 0.5);
+    outline-offset: 3px;
+}
+
+/* Enlace inferior */
+.remember-forgot {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+}
+
+.remember-forgot a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.remember-forgot a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+
+@media (max-width: 380px) {
+    .wrapper form {
+        padding: 20px;
+        gap: 12px;
+    }
+
+    .wrapper form h1 {
+        font-size: 26px;
+    }
+
+    .btn-registro {
+        font-size: 17px;
+        padding: 12px;
+    }
+}
+

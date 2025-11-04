@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Juguetes</title>
+  
+  <link rel="stylesheet" href="style.css"> 
+  <link rel="stylesheet" href="catalogo.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <a href="Inicio.html">Inicio</a>
+      <a href="catalogo.html" class="active">Catálogo</a>
+      <a href="admin.html" id="link-admin" class="btn-admin" style="display: none;">Panel Admin</a>
+    </div>
+
+    <form class="search-form">
+      <input type="text" id="buscador" placeholder="Buscar juguetes..." />
+    </form>
+
+    <div class="nav-right">
+      <a href="carrito.html" class="cart-icon">🛒</a>
+      <span id="usuario-logueado" class="usuario-bienvenida"></span>
+      <a href="/logout" class="logout-btn">Cerrar Sesión</a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="content-wrapper">
+    <!-- SIDEBAR DE FILTROS -->
+    <aside class="sidebar-filtros">
+      <form id="form-filtros">
+        <h3>Filtrar Por</h3>
+        <div class="filtro-grupo">
+          <label for="keywords">Palabras clave</label>
+          <input type="text" id="keywords" name="keywords" placeholder="Ej: auto, muñeca, bloques">
+          <button type="submit" class="btn-buscar">Buscar</button>
+        </div>
+        <div class="filtro-grupo">
+          <h4>Categorías</h4>
+          <label><input type="checkbox" name="categoria" value="bloques"> Bloques y Construcción</label><br>
+          <label><input type="checkbox" name="categoria" value="munecas"> Muñecas y Figuras</label><br>
+          <label><input type="checkbox" name="categoria" value="mesa"> Juegos de Mesa</label><br>
+          <label><input type="checkbox" name="categoria" value="airelibre"> Aire Libre</label><br>
+        </div>
+      </form>
+    </aside>
+
+    <!-- LISTA DE PRODUCTOS -->
+    <section class="lista-productos" id="contenedor-productos">
+      <h2>Nuestros Juguetes</h2> 
+      <p>Cargando productos...</p>
+    </section>
+  </main> 
+
+  <!-- PAGINACIÓN (centrada) -->
+  <nav class="paginacion" aria-label="Navegación de páginas">
+    <a href="#">&laquo;</a>  
+    <a href="#" class="active">1</a>
+    <a href="#">2</a>
+    <a href="#">3</a>
+    <a href="#">4</a>
+    <a href="#">5</a>
+    <a href="#">&raquo;</a>  
+  </nav>
+
+  <!-- SCRIPTS -->
+  <script>
+  // --- Mostrar usuario logueado ---
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const response = await fetch('/usuario', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const data = await response.json();
+      const userSpan = document.getElementById('usuario-logueado');
+      const adminLink = document.getElementById('link-admin');
+      userSpan.textContent = `👋 Bienvenido, ${data.username} (${data.role})`;
+
+      if (data.role === 'admin') adminLink.style.display = 'inline-block';
+
+      cargarProductos();
+    } catch (error) {
+      console.error('Error al obtener el usuario:', error);
+      window.location.href = 'index.html';
+    }
+  });
+
+  // --- Cargar productos desde la API ---
+  async function cargarProductos(filtro = {}) {
+    const contenedor = document.getElementById('contenedor-productos');
+    contenedor.innerHTML = '<h2>Nuestros Juguetes</h2><p>Cargando productos...</p>';
+
+    try {
+      const res = await fetch('/api/productos');
+      const productos = await res.json();
+
+      if (!productos.length) {
+        contenedor.innerHTML = '<h2>Nuestros Juguetes</h2><p>No hay productos disponibles.</p>';
+        return;
+      }
+
+      let filtrados = productos;
+      if (filtro.categorias?.length > 0) {
+        filtrados = filtrados.filter(p => filtro.categorias.includes(p.categoria));
+      }
+      if (filtro.keywords) {
+        const kw = filtro.keywords.toLowerCase();
+        filtrados = filtrados.filter(p =>
+          p.nombre.toLowerCase().includes(kw) ||
+          p.descripcion?.toLowerCase().includes(kw)
+        );
+      }
+
+      contenedor.innerHTML = '<h2>Nuestros Juguetes</h2>';
+      filtrados.forEach(prod => {
+        const card = document.createElement('article');
+        card.classList.add('tarjeta-producto');
+        card.dataset.id = prod.idProducto;
+        card.innerHTML = `
+          <a href="#" class="product-link">
+            <img src="${prod.imagen || 'https://via.placeholder.com/250x200'}" alt="${prod.nombre}" width="250" height="200">
+            <h3>${prod.nombre}</h3>
+          </a>
+          <p class="precio">$${prod.precio.toLocaleString('es-CL')}</p>
+          <a href="#" class="btn-carrito">Agregar al Carrito</a>
+        `;
+        contenedor.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Error al cargar productos:', error);
+      contenedor.innerHTML = '<p>Error al cargar los productos.</p>';
+    }
+  }
+
+  // --- Agregar productos al carrito ---
+  document.addEventListener('click', async e => {
+    if (e.target.classList.contains('btn-carrito')) {
+      e.preventDefault();
+      const card = e.target.closest('.tarjeta-producto');
+      const nombre = card.querySelector('h3').textContent;
+      const id = parseInt(card.dataset.id, 10);
+      const cantidad = 1;
+
+      try {
+        const res = await fetch('/api/carrito/agregar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idProducto: id, cantidad })
+        });
+        const data = await res.json();
+        alert(`${nombre} agregado al carrito`);
+      } catch (err) {
+        console.error(err);
+        alert('Error al agregar al carrito');
+      }
+    }
+  });
+
+  // --- Filtros de búsqueda ---
+  document.getElementById('form-filtros').addEventListener('submit', e => {
+    e.preventDefault();
+    const categorias = Array.from(document.querySelectorAll('input[name="categoria"]:checked')).map(c => c.value);
+    const keywords = document.getElementById('keywords').value.trim();
+    cargarProductos({ categorias, keywords });
+  });
+  </script>
+
+</body>
+</html>

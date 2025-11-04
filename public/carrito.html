@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Carrito</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="catalogo.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <a href="Inicio.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="admin.html" id="link-admin" class="btn-admin" style="display: none;">Panel Admin</a>
+    </div>
+
+    <form class="search-form">
+      <input type="text" placeholder="Buscar juguetes..." />
+    </form>
+
+    <div class="nav-right">
+      <a href="carrito.html" class="cart-icon active">🛒</a>
+      <span id="usuario-logueado" class="usuario-bienvenida"></span>
+      <a href="/logout" class="logout-btn">Cerrar Sesión</a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="content-wrapper">
+    <section class="lista-productos" id="contenedor-carrito">
+      <h2>Mi Carrito</h2>
+      <p>Cargando carrito...</p>
+    </section>
+
+    <aside class="sidebar-filtros" style="min-width: 250px;">
+      <h3>Resumen de compra</h3>
+      <p id="total-carrito">Total: $0</p>
+      <button id="vaciar-carrito" class="btn-buscar" style="margin-top: 15px;">Vaciar Carrito</button>
+      <button id="finalizar-compra" class="btn-carrito" style="margin-top: 10px;">Finalizar Compra</button>
+    </aside>
+  </main>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      // --- Verificar usuario logueado ---
+      const response = await fetch('/usuario', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const data = await response.json();
+      const userSpan = document.getElementById('usuario-logueado');
+      const adminLink = document.getElementById('link-admin');
+      userSpan.textContent = `👋 Bienvenido, ${data.username} (${data.role})`;
+
+      if (data.role === 'admin') adminLink.style.display = 'inline-block';
+
+      // --- Cargar carrito ---
+      cargarCarrito();
+    } catch (error) {
+      console.error('Error al obtener el usuario:', error);
+      window.location.href = 'index.html';
+    }
+  });
+
+  // --- Función para cargar los productos del carrito ---
+  async function cargarCarrito() {
+    const contenedor = document.getElementById('contenedor-carrito');
+    contenedor.innerHTML = '<h2>Mi Carrito</h2><p>Cargando...</p>';
+
+    try {
+      const res = await fetch('/api/carrito', { credentials: 'include' });
+      if (!res.ok) throw new Error('Error al obtener carrito');
+
+      const carrito = await res.json();
+
+      if (!carrito || carrito.length === 0) {
+        contenedor.innerHTML = '<h2>Mi Carrito</h2><p>Tu carrito está vacío.</p>';
+        document.getElementById('total-carrito').textContent = 'Total: $0';
+        return;
+      }
+
+      contenedor.innerHTML = '<h2>Mi Carrito</h2>';
+      let total = 0;
+
+      carrito.forEach(prod => {
+        total += prod.precio * prod.cantidad;
+        const card = document.createElement('article');
+        card.classList.add('tarjeta-producto');
+        card.innerHTML = `
+          <img src="${prod.imagen || 'https://via.placeholder.com/250x200'}" alt="${prod.nombre}" width="250" height="200">
+          <h3>${prod.nombre}</h3>
+          <p>Precio: $${prod.precio.toLocaleString('es-CL')}</p>
+          <p>Cantidad: ${prod.cantidad}</p>
+          <p>Subtotal: $${(prod.precio * prod.cantidad).toLocaleString('es-CL')}</p>
+          <button class="btn-buscar eliminar-btn" data-id="${prod.idProducto}">Eliminar</button>
+        `;
+        contenedor.appendChild(card);
+      });
+
+      document.getElementById('total-carrito').textContent = `Total: $${total.toLocaleString('es-CL')}`;
+
+    } catch (error) {
+      console.error('Error al cargar carrito:', error);
+      contenedor.innerHTML = '<h2>Mi Carrito</h2><p>Error al cargar el carrito.</p>';
+    }
+  }
+
+  // --- Eliminar producto del carrito ---
+  document.addEventListener('click', async e => {
+    if (e.target.classList.contains('eliminar-btn')) {
+      const id = parseInt(e.target.dataset.id, 10);
+      try {
+        await fetch('/api/carrito/eliminar', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idProducto: id })
+        });
+        cargarCarrito();
+      } catch (error) {
+        alert('Error al eliminar producto');
+        console.error(error);
+      }
+    }
+  });
+
+  // --- Vaciar carrito ---
+  document.getElementById('vaciar-carrito').addEventListener('click', async () => {
+    if (confirm('¿Seguro que deseas vaciar tu carrito?')) {
+      try {
+        await fetch('/api/carrito/vaciar', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        cargarCarrito();
+      } catch (error) {
+        alert('Error al vaciar el carrito');
+      }
+    }
+  });
+
+  // --- Finalizar compra (simulada) ---
+  document.getElementById('finalizar-compra').addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/carrito', { credentials: 'include' });
+      const carrito = await res.json();
+
+      if (!carrito || carrito.length === 0) {
+        alert('Tu carrito está vacío.');
+        return;
+      }
+
+      alert('¡Gracias por tu compra! 🛍️');
+      await fetch('/api/carrito/vaciar', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      cargarCarrito();
+    } catch (error) {
+      alert('Error al finalizar la compra');
+      console.error(error);
+    }
+  });
+  </script>
+
+</body>
+</html>
+

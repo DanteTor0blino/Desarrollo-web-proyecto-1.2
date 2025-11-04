@@ -1,0 +1,102 @@
+
+.hero {
+    background-color: #00A9E0; /* Azul brillante de la navegación */
+    color: white;
+    text-align: center;
+    padding: 80px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.hero h1 {
+    font-family: "Nunito", sans-serif;
+    font-size: 3rem; /* 48px */
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.25rem; /* 20px */
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.btn-hero {
+    background-color: #7AC943; /* Verde puffy */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #5A9A3B;
+    transition: all 0.1s ease-in-out;
+}
+
+.btn-hero:hover {
+    background-color: #85D45A;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #5A9A3B;
+}
+
+.btn-hero:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #5A9A3B;
+}
+
+
+.categorias-populares {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.categorias-populares h2 {
+    font-family: "Nunito", sans-serif;
+    font-size: 2.5rem; /* 40px */
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.grid-categorias {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.categoria-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: #333;
+    overflow: hidden; /* Para que la imagen respete los bordes */
+    transition: all 0.3s ease;
+}
+
+.categoria-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.categoria-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover; /* Evita que la imagen se deforme */
+    display: block;
+}
+
+.categoria-card h3 {
+    font-family: "Nunito", sans-serif;
+    font-size: 1.5rem; /* 24px */
+    padding: 25px;
+}
+
+
+.footer {
+    background-color: #333;
+    color: #aaa;
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 50px; 
+}

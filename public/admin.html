@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración</title>
+  <link rel="stylesheet" href="catalogo.css">
+  <style>
+    /* --- Extra estilos para admin --- */
+    .admin-panel {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .admin-panel h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #00A9E0;
+      font-family: "Nunito", sans-serif;
+    }
+
+    #lista-productos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .tarjeta-producto {
+      background-color: #fdfdfd;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .tarjeta-producto:hover {
+      transform: translateY(-5px);
+    }
+
+    .tarjeta-producto h4 {
+      color: #00A9E0;
+    }
+
+    /* Botón de administración */
+    .btn-admin {
+      background-color: #00A9E0;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn-admin:hover {
+      background-color: #008DBC;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <div class="nav-left">
+      <a href="Inicio.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="admin.html" id="link-admin" class="btn-admin" style="display: none;">Panel Admin</a>
+    </div>
+
+    <form class="search-form">
+      <input type="text" placeholder="Buscar juguetes...">
+    </form>
+
+    <div class="nav-right">
+      <a href="carrito.html" class="cart-icon">🛒</a>
+      <span id="usuario-logueado" class="usuario-bienvenida"></span>
+      <a href="/logout" class="logout-btn">Cerrar Sesión</a>
+    </div>
+  </nav>
+
+  <main class="content-wrapper" style="margin-top: 80px;">
+    <section class="admin-panel" style="flex:1;">
+      <h2>Panel de Administración</h2>
+
+      <form id="form-agregar">
+        <label>ID del Producto:</label>
+        <input type="number" name="idProducto" required><br><br>
+
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required><br><br>
+
+        <label>Precio:</label>
+        <input type="number" name="precio" required><br><br>
+
+        <label>Categoría:</label>
+        <input type="text" name="categoria" required><br><br>
+
+        <label>Descripción:</label>
+        <textarea name="descripcion"></textarea><br><br>
+
+        <label>URL de Imagen:</label>
+        <input type="text" name="imagen"><br><br>
+
+        <button type="submit" class="btn-buscar">Agregar Producto</button>
+      </form>
+
+      <hr style="margin: 40px 0;">
+
+      <h2>Lista de Productos</h2>
+      <div id="lista-productos"></div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const response = await fetch('/usuario', { credentials: 'include' });
+      if (!response.ok) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const user = await response.json();
+      const userSpan = document.getElementById('usuario-logueado');
+      const linkAdmin = document.getElementById('link-admin');
+
+      userSpan.textContent = `👋 ${user.username} (${user.role})`;
+
+      // Mostrar enlace admin solo si es admin
+      if (user.role === 'admin') {
+        linkAdmin.style.display = 'inline-block';
+        cargarProductos();
+      } else {
+        alert('No tienes permisos para acceder al panel de administrador');
+        window.location.href = 'catalogo.html';
+      }
+    });
+
+    async function cargarProductos() {
+      const res = await fetch('/api/admin/productos', { credentials: 'include' });
+      const productos = await res.json();
+      const contenedor = document.getElementById('lista-productos');
+      contenedor.innerHTML = '';
+
+      productos.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'tarjeta-producto';
+        div.innerHTML = `
+          <h4>${p.nombre}</h4>
+          <p><b>ID:</b> ${p.idProducto}</p>
+          <p><b>Categoría:</b> ${p.categoria}</p>
+          <p><b>Precio:</b> $${p.precio}</p>
+        `;
+        contenedor.appendChild(div);
+      });
+    }
+
+    document.getElementById('form-agregar').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const formData = Object.fromEntries(new FormData(e.target).entries());
+      const res = await fetch('/api/admin/agregar-producto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.mensaje);
+        e.target.reset();
+        cargarProductos();
+      } else {
+        alert(data.error || 'Error al agregar producto');
+      }
+    });
+  </script>
+</body>
+</html>
+
